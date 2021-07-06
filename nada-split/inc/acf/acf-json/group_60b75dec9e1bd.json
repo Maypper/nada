@@ -1,0 +1,83 @@
+{
+    "key": "group_60b75dec9e1bd",
+    "title": "Comments",
+    "fields": [
+        {
+            "key": "field_60b9beac7d61b",
+            "label": "Title",
+            "name": "comment_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_60b75ec595e2d",
+            "label": "Quality",
+            "name": "quality",
+            "type": "range",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": 10,
+            "step": "",
+            "prepend": "Not Bad",
+            "append": "Very Good!"
+        },
+        {
+            "key": "field_60b75f1a95e2e",
+            "label": "Functional",
+            "name": "functional",
+            "type": "range",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": 0,
+            "max": 10,
+            "step": "",
+            "prepend": "Not Bad",
+            "append": "Very Good!"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "comment",
+                "operator": "==",
+                "value": "product"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1622785734
+}

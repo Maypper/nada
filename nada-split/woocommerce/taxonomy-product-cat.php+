@@ -1,0 +1,231 @@
+<?php
+/**
+ * The Template for displaying product archives, including the main shop page which is a post type archive
+ *
+ * This template can be overridden by copying it to yourtheme/woocommerce/archive-product.php.
+ *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @see https://docs.woocommerce.com/document/template-structure/
+ * @package WooCommerce\Templates
+ * @version 3.4.0
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+get_header();
+
+/**
+ * Hook: woocommerce_before_main_content.
+ *
+ * @hooked woocommerce_output_content_wrapper - 10 (outputs opening divs for the content)
+ * @hooked woocommerce_breadcrumb - 20
+ * @hooked WC_Structured_Data::generate_website_data() - 30
+ */
+//do_action( 'woocommerce_before_main_content' );
+
+$term    = get_queried_object();
+$term_id = $term->term_id;
+$choices = get_field( 'style', $term );
+$description = category_description();
+$description = str_replace('<p>', '<p class="advertisement__info">', $description);
+?>
+    <section class="<?php
+	if ( $choices == 'starter_kits' ) {
+		echo 'advertisement';
+	} elseif ( $choices == 'refill_tablets' ) {
+		echo 'advertisement-tablets';
+	} elseif ( $choices == 'lifetime_bottles' ) {
+		echo 'advertisement-bottles';
+	}
+	?> position-relative">
+        <div class="container">
+            <div class="advertisement__box">
+                <h1><?php single_cat_title() ?></h1>
+                <?php echo $description ?>
+            </div>
+        </div>
+		<?php
+		if ( $choices == 'starter_kits' ) :
+			?>
+            <img class="position-absolute img-down-center" src="<?php echo get_theme_image_url( 'shop/bottle.png' ) ?>"
+                 aria-hidden="true" alt="">
+            <img class="position-absolute img-top" src="<?php echo get_theme_image_url( 'shop/capsule-box.png' ) ?>"
+                 aria-hidden="true" alt="">
+            <img class="position-absolute img-down-right" src="<?php echo get_theme_image_url( 'shop/boxes.png' ) ?>"
+                 aria-hidden="true" alt="">
+		<?php
+        elseif ( $choices == 'refill_tablets' ) :
+			?>
+            <img class="position-absolute img-down-center" src="<?php echo get_theme_image_url( 'shop/sachets.png' ) ?>"
+                 aria-hidden="true" alt="">
+            <img class="position-absolute img-top" src="<?php echo get_theme_image_url( 'shop/capsule-box.png' ) ?>"
+                 aria-hidden="true" alt="">
+            <img class="position-absolute img-down-right" src="<?php echo get_theme_image_url( 'shop/box.png' ) ?>"
+                 aria-hidden="true" alt="">
+		<?php
+        elseif ( $choices == 'lifetime_bottles' ) :
+			?>
+            <img class="position-absolute img-down-center" src="<?php echo get_theme_image_url( 'shop/bottle2.png' ) ?>"
+                 aria-hidden="true" alt="">
+            <img class="position-absolute img-down-right" src="<?php echo get_theme_image_url( 'shop/boxes2.png' ) ?>"
+                 aria-hidden="true" alt="">
+		<?php
+		endif;
+		?>
+    </section>
+    <section class="cards">
+        <!--  <div class="container-fluid">-->
+        <div class="row cards__row">
+			<?php
+			if ( wc_get_loop_prop( 'total' ) ) {
+				$index = 1;
+				while ( have_posts() ) {
+					the_post();
+					wc_get_template_part( 'content', 'product' );
+					$index++;
+					if ($index === 6) {
+						break;
+					}
+				}
+			}
+			?>
+        </div>
+        <!--  </div>-->
+    </section>
+<?php
+$top_product_id = get_field('top_product', $term);
+$display_top_product = get_field('display_featured_product', $term);
+
+$top_product_id = $top_product_id[0];
+$top_product_id = $top_product_id ? $top_product_id : get_posts( array(
+	'numberposts' => '1',
+	'post_type'   => 'product',
+	'tax_query' => array(
+		array(
+			'taxonomy' => 'product_cat',
+			'terms'    => $term_id
+		)
+	)
+) );
+
+if (is_array($top_product_id)) {
+	$top_product_id = $top_product_id[0]->ID;
+}
+$top_product = new WC_Product($top_product_id);
+$average_rating = $top_product->get_average_rating();
+$average_star_rating = wc_get_rating_html($average_rating);
+if ($display_top_product):
+?>
+    <section class="kit">
+        <!--  <div class="container-fluid">-->
+        <div class="kit__box">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="kit__box-info">
+                        <p><?php echo $top_product->get_short_description() ?></p>
+                        <h2><?php echo $top_product->get_title() ?></h2>
+                        <p><?php echo $top_product->get_description() ?></p>
+                        <div class="infocard__rating d-flex">
+                            <div class="infocard__rating-stars"><?php echo $average_star_rating ?>
+                            </div>
+                            <p><?php echo $top_product->get_rating_count(); ?> review<?php if ($top_product->get_rating_count() > 1){echo 's';} ?></p>
+                        </div>
+                        <a href="<?php echo $top_product->get_permalink() ?>" class="button blue-btn">SHOP NOW</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="kit__box-stand">
+                        <img src="<?php echo get_the_post_thumbnail_url($top_product_id) ?>" alt="bottle + box">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--  </div>-->
+    </section>
+<?php endif; ?>
+    <section class="cards">
+		<?php
+		$args = array(
+			'post_type'      => 'product',
+			'product_cat'    => $term->name,
+            'offset'         => 6
+		);
+		$loop = new WP_Query( $args );
+		?>
+        <!--  <div class="container-fluid">-->
+        <div class="row cards__row">
+			<?php
+			if ( $loop->have_posts() ) {
+				while ( $loop->have_posts() ) : $loop->the_post();
+					wc_get_template_part( 'content', 'product' );
+				endwhile;
+			}
+			wp_reset_postdata();
+			?>
+        </div>
+        <!--  </div>-->
+    </section>
+<?php
+//if ( woocommerce_product_loop() ) {
+//
+//	/**
+//	 * Hook: woocommerce_before_shop_loop.
+//	 *
+//	 * @hooked woocommerce_output_all_notices - 10
+//	 * @hooked woocommerce_result_count - 20
+//	 * @hooked woocommerce_catalog_ordering - 30
+//	 */
+//	do_action( 'woocommerce_before_shop_loop' );
+//
+//	woocommerce_product_loop_start();
+//
+//	if ( wc_get_loop_prop( 'total' ) ) {
+//		while ( have_posts() ) {
+//			the_post();
+//
+//			/**
+//			 * Hook: woocommerce_shop_loop.
+//			 */
+//			do_action( 'woocommerce_shop_loop' );
+//
+//			wc_get_template_part( 'content', 'product' );
+//		}
+//	}
+//
+//	woocommerce_product_loop_end();
+//
+//	/**
+//	 * Hook: woocommerce_after_shop_loop.
+//	 *
+//	 * @hooked woocommerce_pagination - 10
+//	 */
+//	do_action( 'woocommerce_after_shop_loop' );
+//} else {
+//	/**
+//	 * Hook: woocommerce_no_products_found.
+//	 *
+//	 * @hooked wc_no_products_found - 10
+//	 */
+//	do_action( 'woocommerce_no_products_found' );
+//}
+//
+///**
+// * Hook: woocommerce_after_main_content.
+// *
+// * @hooked woocommerce_output_content_wrapper_end - 10 (outputs closing divs for the content)
+// */
+//do_action( 'woocommerce_after_main_content' );
+//
+///**
+// * Hook: woocommerce_sidebar.
+// *
+// * @hooked woocommerce_get_sidebar - 10
+// */
+//do_action( 'woocommerce_sidebar' );
+
+get_footer();
